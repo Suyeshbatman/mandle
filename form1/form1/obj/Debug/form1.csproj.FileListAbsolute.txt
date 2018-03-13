@@ -1,0 +1,9 @@
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\obj\Debug\form1.csprojResolveAssemblyReference.cache
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\obj\Debug\forml.Form1.resources
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\obj\Debug\form1.Properties.Resources.resources
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\obj\Debug\form1.csproj.GenerateResource.Cache
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\bin\Debug\form1.exe.config
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\bin\Debug\form1.exe
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\bin\Debug\form1.pdb
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\obj\Debug\form1.exe
+C:\Users\nischal\documents\visual studio 2017\Projects\form1\form1\obj\Debug\form1.pdb
