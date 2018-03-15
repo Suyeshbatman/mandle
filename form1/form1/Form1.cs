@@ -21,11 +21,12 @@ namespace forml
         private const double EY = 1.125;  // end value imaginary
         private static int x1, y1, xs, ys, xe, ye;
         private static double xstart, ystart, xende, yende, xzoom, yzoom;
-        private static Boolean action, rectangle, finished;
+        private static bool action, rectangle, finished;
         private static float xy;
-        
+        //private Image picture;
         private Bitmap picture;
-        private Boolean mousedown = false;
+        private bool mousedown = false;
+        private Graphics g;
         private Graphics g1;
         private Cursor c1, c2;
         private HSB HSBcol;
@@ -206,8 +207,8 @@ namespace forml
             picture = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             //g1 = picture.getGraphics();
             g1 = Graphics.FromImage(picture);
-            finished = true;
-            
+           finished = true;
+            editToolStripMenuItem.Enabled = false;
 
             start();
 
