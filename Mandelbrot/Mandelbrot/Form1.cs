@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Printing;
 using Mandelbrot;
+using System.Xml.Linq;
+using System.Xml;
+using System.IO;
 
 namespace Mandelbrot
 {
@@ -30,8 +33,9 @@ namespace Mandelbrot
         private Graphics g;
         private Graphics g1;
         private Cursor c1, c2;
-        private Pen pen;
-        private Rectangle rect;
+      
+        Rectangle rect = new Rectangle(0, 0, 0, 0);
+        private int j;
 
         
 
@@ -83,7 +87,10 @@ namespace Mandelbrot
                 }
                 w = (xe - xs);
                 z = (ye - ys);
-                if ((w < 2) && (z < 2)) initvalues();
+                if ((w < 2) && (z < 2))
+                {
+                    initvalues();
+                }
                 else
                 {
                     if (((float)w > (float)z * xy)) ye = (int)((float)ys + (float)w / xy);
@@ -109,7 +116,7 @@ namespace Mandelbrot
             float h, b, alt = 0.0f;
             Pen pen = new Pen(Color.White);
 
-            action = false;
+           // action = false;
             //this.Cursor = c1; // in java setCursor(c1)
             pictureBox1.Cursor = c2;
 
@@ -137,26 +144,27 @@ namespace Mandelbrot
                     g1.DrawLine(pen, new Point(x, y), new Point(x + 1, y)); // drawing pixel
                 }
                 //showStatus("Mandelbrot-Set ready - please select zoom area with pressed mouse.");
-                Cursor.Current = c1;
-                action = true;
+                
             }
-
+            Cursor.Current = c1;
+            action = true;
             pictureBox1.Image = picture;
         }
 
         private float pointcolour(double xwert, double ywert)
         {
             double r = 0.0, i = 0.0, m = 0.0;// real, imaginary, absolute value or distance
-            int j = 0;
+            int p;
+            p = j;
 
-            while ((j < MAX) && (m < 4.0))
+            while ((p < MAX) && (m < 4.0))
             {
-                j++;
+                p++;
                 m = r * r - i * i; // x^2 - y^2
                 i = 2.0 * r * i + ywert; // 2xy + c
                 r = m + xwert;
             }
-            return (float)j / (float)MAX;
+            return (float)p / (float)MAX;
         }
 
         private void initvalues()
@@ -166,33 +174,145 @@ namespace Mandelbrot
             xende = EX;
             yende = EY;
             if ((float)((xende - xstart) / (yende - ystart)) != xy)
+            {
                 xstart = xende - (yende - ystart) * (double)xy;
+            }
+              
 
         }
 
         private HSB HSBcol;
-        //private object editToolStripMenuItem;
+
+        public int[] Entries { get; private set; }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             HSB hsb = new HSB();
         }
 
+        private void greenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            j = 80;
+            mandelbrot();
+            Refresh();
+        }
+
+        private void yellowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            j = 20;
+            mandelbrot();
+            Refresh();
+        }
+
+        private void redToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            j = 0;
+            mandelbrot();
+            Refresh();
+        }
+
+        private void purpleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            j = 190;
+            mandelbrot();
+            Refresh();
+        }
+
+        
+        
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
             start();
         }
 
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog f = new SaveFileDialog();
+            f.Filter = "JPG(*.JPG) | *.JPG";
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                picture.Save(f.FileName);
+            }
+        }
+
+        private void blueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            j = 150;
+            mandelbrot();
+            Refresh();
+        }
+
+        private void stateSaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            SaveFileDialog f = new SaveFileDialog();
+            f.Filter = "XML Files(*.XML) | *.XML";
+            if (f.ShowDialog() == DialogResult.OK)
+
+                try
+                {
+                XmlWriter writer = XmlWriter.Create("state.xml");
+                writer.WriteStartDocument();
+                writer.WriteStartElement("states");
+                writer.WriteElementString("xstart", xstart.ToString());
+                writer.WriteElementString("ystart", ystart.ToString());
+                writer.WriteElementString("xzoom", xzoom.ToString());
+                writer.WriteElementString("yzoom", yzoom.ToString());
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Flush();
+                writer.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
         private void start()
         {
             action = false;
             rectangle = false;
-            initvalues();
-            xzoom = (xende - xstart) / (double)x1;
-            yzoom = (yende - ystart) / (double)y1;
-            mandelbrot();
+           initvalues();
+              xzoom = (xende - xstart) / (double)x1;
+              yzoom = (yende - ystart) / (double)y1;
+              mandelbrot();
+
+
+            String exists = "state.xml";
+            if (File.Exists(exists))
+            { 
+            
+           try
+           {
+                    XmlDocument state = new XmlDocument();
+                    state.Load("state.xml");
+                    foreach (XmlNode node in state)
+                    {
+                        xstart = Convert.ToDouble(node["xstart"]?.InnerText);
+                        ystart = Convert.ToDouble(node["ystart"]?.InnerText);
+                        xzoom = Convert.ToDouble(node["xzoom"]?.InnerText);
+                        yzoom = Convert.ToDouble(node["yzoom"]?.InnerText);
+                    }
+                    mandelbrot();
+                    Refresh();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
         }
+            else
+            {
+                initvalues();
+        xzoom = (xende - xstart) / (double) x1;
+        yzoom = (yende - ystart) / (double) y1;
+                mandelbrot();
+    }
+
+}
 
         public void destroy() // delete all instances 
         {
@@ -216,26 +336,7 @@ namespace Mandelbrot
 
        
 
-        private void saveStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog f = new SaveFileDialog();
-            f.Filter = "JPG(*.JPG) | *.JPG";
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                picture.Save(f.FileName);
-            }
-        }
-
-        
-        private void saveFileDialog1_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
-
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Stop();
-        }
+      
 
         
 
@@ -246,7 +347,13 @@ namespace Mandelbrot
 
         private void reloadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Stop();
+            String exists = "state.xml";
+            if (File.Exists(exists))
+            {
+                File.Delete("state.xml");
+            }
+            pictureBox1.Image = null;
+            
             start();
         }
 
@@ -282,8 +389,8 @@ namespace Mandelbrot
             picture = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             g1 = Graphics.FromImage(picture);
        
-            finished = true;
-            //editToolStripMenuItem.Enabled = false; 
+        
+            
 
             start();
          }
@@ -291,13 +398,9 @@ namespace Mandelbrot
 
         private void pictureBox1_paint(object sender, PaintEventArgs e)
         {
-            Update();
-        }
-
-        public void Update()
-        {
+           
             Image tempPic = Image.FromHbitmap(picture.GetHbitmap());
-            Graphics g = Graphics.FromImage(tempPic);
+            Graphics g1 = Graphics.FromImage(tempPic);
 
             if (rectangle)
             {
@@ -331,7 +434,7 @@ namespace Mandelbrot
                             (xe, ye, (xs - xe), (ys - ye));
                     }
                 }
-                g.DrawRectangle(pen, rect);
+                g1.DrawRectangle(pen, rect);
                 pictureBox1.Image = tempPic;
 
             }
