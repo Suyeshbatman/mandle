@@ -111,7 +111,8 @@ namespace Mandelbrot
 
         private void mandelbrot()
         {
-
+            try
+            { 
             int x, y;
             float h, b, alt = 0.0f;
             Pen pen = new Pen(Color.White);
@@ -120,35 +121,42 @@ namespace Mandelbrot
             //this.Cursor = c1; // in java setCursor(c1)
             pictureBox1.Cursor = c2;
 
-            //showStatus("Mandelbrot-Set will be produced - please wait..."); will do later
-            for (x = 0; x < x1; x += 2)
-            {
-                for (y = 0; y < y1; y++)
+                //showStatus("Mandelbrot-Set will be produced - please wait..."); will do later
+                for (x = 0; x < x1; x += 2)
                 {
-                    h = pointcolour(xstart + xzoom * (double)x, ystart + yzoom * (double)y); // hue value
-
-                    if (h != alt)
+                    for (y = 0; y < y1; y++)
                     {
-                        b = 1.0f - h * h; // brightness
+                        h = pointcolour(xstart + xzoom * (double)x, ystart + yzoom * (double)y); // hue value
 
-                        HSBcol.fromHSB(h, 0.8f, b); //convert hsb to rgb then make a Java Color
-                        Color col = Color.FromArgb(Convert.ToByte(HSBcol.rChan), Convert.ToByte(HSBcol.gChan), Convert.ToByte(HSBcol.bChan));
+                        if (h != alt)
+                        {
+                            b = 1.0f - h * h; // brightness
 
-                        pen = new Pen(col);
+                            HSBcol.fromHSB(h, 0.8f, b); //convert hsb to rgb then make a Java Color
+                            Color col = Color.FromArgb(Convert.ToByte(HSBcol.rChan), Convert.ToByte(HSBcol.gChan), Convert.ToByte(HSBcol.bChan));
 
-                        //djm end
-                        //djm added to convert to RGB from HSB
+                            pen = new Pen(col);
 
-                        alt = h;
+                            //djm end
+                            //djm added to convert to RGB from HSB
+
+                            alt = h;
+                        }
+                        g1.DrawLine(pen, new Point(x, y), new Point(x + 1, y)); // drawing pixel
                     }
-                    g1.DrawLine(pen, new Point(x, y), new Point(x + 1, y)); // drawing pixel
+                    //showStatus("Mandelbrot-Set ready - please select zoom area with pressed mouse.");
+
+                    Cursor.Current = c1;
+                    action = true;
+                    pictureBox1.Image = picture;
                 }
-                //showStatus("Mandelbrot-Set ready - please select zoom area with pressed mouse.");
+            }
+
+            catch
+            {
                 
             }
-            Cursor.Current = c1;
-            action = true;
-            pictureBox1.Image = picture;
+            
         }
 
         private float pointcolour(double xwert, double ywert)
@@ -218,8 +226,29 @@ namespace Mandelbrot
             Refresh();
         }
 
-        
-        
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            j = j + 1;
+            mandelbrot();
+            Refresh();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            timer1.Start();
+            
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Created by Suyesh Bhatta", "Mandelbrot Fractal with Color Palette and Color cycling"
+                );
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+        }
 
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -298,6 +327,7 @@ namespace Mandelbrot
                     }
                     mandelbrot();
                     Refresh();
+                    
                 }
                 catch (Exception ex)
                 {
